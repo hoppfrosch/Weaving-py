@@ -23,6 +23,13 @@ class TestWeavingTabletCardHoles(unittest.TestCase):
 
         mycard = weaving.tablet.card.Card()
         self.assertEqual(mycard.holes, 4)
+
+        elemental_angle = mycard.inc_angle_min
+        self.assertEqual(elemental_angle, 45)
+
+        regular_angle = mycard.inc_angle
+        self.assertEqual(regular_angle, 90)
+
         return
 
     def test_holes_2(self):
@@ -44,7 +51,7 @@ class TestWeavingTabletCardHoles(unittest.TestCase):
 
 
 class TestWeavingTabletCardSZ(unittest.TestCase):
-    """Unittest concerning joles of a card"""
+    """Unittest concerning holes of a card"""
 
     def setUp(self):
         self.test = 0
@@ -74,6 +81,62 @@ class TestWeavingTabletCardSZ(unittest.TestCase):
         """Failure test on wrong SZ-Type (SZ is not a string)"""
         self.assertRaises(ValueError, lambda: weaving.tablet.card.Card(SZ="A"))
 
+
+class TestWeavingTabletCardTurning(unittest.TestCase):
+    """Unittest concerning turning of a card"""
+    def setUp(self):
+        self.test = 0
+
+    def test_4_regular_elementary(self):
+        """Successful test on turning forward"""
+        mycard = weaving.tablet.card.Card(4)
+
+        mycard.turn("F")
+        self.assertEqual(mycard.motion_sequence[-1], "F")
+        self.assertEqual(mycard.twists_on_farside, 2)
+        mycard.turn("b")
+        self.assertEqual(mycard.motion_sequence[-1], "b")
+        self.assertEqual(mycard.twists_on_farside, 1)
+        mycard.turn("B")
+        self.assertEqual(mycard.motion_sequence[-1], "B")
+        self.assertEqual(mycard.twists_on_farside, -1)
+        mycard.turn("f")
+        self.assertEqual(mycard.motion_sequence[-1], "f")
+        self.assertEqual(mycard.twists_on_farside, 0)
+
+    def test_4_regular(self):
+        """Successful test on turning forward"""
+        mycard = weaving.tablet.card.Card(4)
+
+        mycard.turn("F")
+        self.assertEqual(mycard.motion_sequence[-1], "F")
+        self.assertEqual(mycard.twists_on_farside, 2)
+        mycard.turn("F")
+        self.assertEqual(mycard.motion_sequence[-1], "F")
+        self.assertEqual(mycard.twists_on_farside, 4)
+        mycard.turn("B")
+        self.assertEqual(mycard.motion_sequence[-1], "B")
+        self.assertEqual(mycard.twists_on_farside, 2)
+        mycard.turn("B")
+        self.assertEqual(mycard.motion_sequence[-1], "B")
+        self.assertEqual(mycard.twists_on_farside, 0)
+
+    def test_4_elementary(self):
+        """Successful test on turning forward"""
+        mycard = weaving.tablet.card.Card(4)
+
+        mycard.turn("b")
+        self.assertEqual(mycard.motion_sequence[-1], "b")
+        self.assertEqual(mycard.twists_on_farside, -1)
+        mycard.turn("b")
+        self.assertEqual(mycard.motion_sequence[-1], "b")
+        self.assertEqual(mycard.twists_on_farside, -2)
+        mycard.turn("f")
+        self.assertEqual(mycard.motion_sequence[-1], "f")
+        self.assertEqual(mycard.twists_on_farside, -1)
+        mycard.turn("f")
+        self.assertEqual(mycard.motion_sequence[-1], "f")
+        self.assertEqual(mycard.twists_on_farside, 0)
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,7 +7,7 @@ import re
 from version import Version
 from collections import OrderedDict
 
-__version__ = str(Version('0.1.0-alpha.2'))
+__version__ = str(Version('0.1.0-alpha.3'))
 
 
 class Card(object):
@@ -17,14 +17,17 @@ class Card(object):
     # Max number of holes within card which can be handled with this class
     _max_holes = 6
     # Properties for n-holed cards
+    # * incAngle: Regular angle a tablet is turned (e.g. a 4holed tablet is turned a quarter turn regulary)
+    # * incAngleMin: Minimum angle a tablet can be turned
     _prop = {
-        3: {'incAngle': 30, 'startAngle': 270},
-        4: {'incAngle': 45, 'startAngle': 225},
-        5: {'incAngle': 18, 'startAngle': 270},
-        6: {'incAngle': 30, 'startAngle': 255}
+        3: {'incAngle': 120, 'incAngleMin': 30, 'startAngle': 270},
+        4: {'incAngle': 90, 'incAngleMin': 45, 'startAngle': 225},
+        5: {'incAngle': 72, 'incAngleMin': 18, 'startAngle': 270},
+        6: {'incAngle': 60, 'incAngleMin': 30, 'startAngle': 255}
     }
     # motion_sequence records all motions made with a card:
-    # "F", "B": Turns
+    # "F", "B": regular Turns
+    # "f", "b": elemental Turns
     # "TwL", "TwR": twist (rotate the Card along threading direction - Right <-> Left )
     # "FlCw" "FlCcw": flip (flip the card along axis perpendicular to threading direction - Clockwise - Counter-Clockwise)
     motion_sequence = []
@@ -66,30 +69,44 @@ class Card(object):
 
     @property
     def inc_angle(self):
-        """Getter for incrementation angle when rotating an n-holed card"""
+        """Getter for incrementation angle when rotating an n-holed card regulary"""
         return self._prop[self.holes]['incAngle']
+
+    @property
+    def inc_angle_min(self):
+        """Getter for incrementation angle when rotating an n-holed card elementary"""
+        return self._prop[self.holes]['incAngleMin']
 
     @property
     def start_angle(self):
         """Getter for incrementation angle when rotating an n-holed card"""
         return self._prop[self.holes]['startAngle']
 
-    @classmethod
-    def turn(cls, direction="F"):
+    def turn(self, direction="F"):
         """
         Turning a tablet in a given direction
 
-        @param    direction   Turning direction ("F" or "B" (Forward or Backward))
+        @param    direction   Turning direction (Regular turn: "F" or "B" (Forward or Backward), elementary turn: "f" or "b")
         """
-        if not direction is "F" and not direction is "B":
-            raise ValueError("Turning direction must either be F (Forward) or B (Backward)")
+        if not direction is "F" and not direction is "B" and not direction is "f" and not direction is "b":
+            raise ValueError("Turning direction must either be <F> (regular Forward) (default) or <B> " + \
+                             "(regular Backward) or <f> (elemental Forward) (default) or <b> (elemental Backward)")
+
+        # Number of elementary turns caused by the current turn
+        x_1 = self.inc_angle
+        x_2 = self.inc_angle_min
+        amount = self.inc_angle/self.inc_angle_min
 
         if direction is "F":
-            cls.twists_on_farside = cls.twists_on_farside + 1
-        else:
-            cls.twists_on_farside = cls.twists_on_farside - 1
+            self.twists_on_farside = self.twists_on_farside + amount
+        elif direction is "f":
+            self.twists_on_farside = self.twists_on_farside + 1
+        elif direction is "B":
+            self.twists_on_farside = self.twists_on_farside - amount
+        elif direction is "b":
+            self.twists_on_farside = self.twists_on_farside - 1
 
-        cls.motion_sequence.append(direction)
+        self.motion_sequence.append(direction)
 
 
 class Thread(object):
