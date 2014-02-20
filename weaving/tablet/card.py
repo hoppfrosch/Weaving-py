@@ -7,31 +7,13 @@ import re
 from version import Version
 from collections import OrderedDict
 
-__version__ = str(Version('0.1.0-alpha.3'))
+__version__ = str(Version('0.1.0-alpha.4'))
 
 
 class Card(object):
     """
     Definition of a card for tablet weaving
     """
-    # Max number of holes within card which can be handled with this class
-    _max_holes = 6
-    # Properties for n-holed cards
-    # * incAngle: Regular angle a tablet is turned (e.g. a 4holed tablet is turned a quarter turn regulary)
-    # * incAngleMin: Minimum angle a tablet can be turned
-    _prop = {
-        3: {'incAngle': 120, 'incAngleMin': 30, 'startAngle': 270},
-        4: {'incAngle': 90, 'incAngleMin': 45, 'startAngle': 225},
-        5: {'incAngle': 72, 'incAngleMin': 18, 'startAngle': 270},
-        6: {'incAngle': 60, 'incAngleMin': 30, 'startAngle': 255}
-    }
-    # motion_sequence records all motions made with a card:
-    # "F", "B": regular Turns
-    # "f", "b": elemental Turns
-    # "TwL", "TwR": twist (rotate the Card along threading direction - Right <-> Left )
-    # "FlCw" "FlCcw": flip (flip the card along axis perpendicular to threading direction - Clockwise - Counter-Clockwise)
-    motion_sequence = []
-    twists_on_farside = 0
 
     def __init__(self, holes=4, SZ="S"):
         """
@@ -40,6 +22,34 @@ class Card(object):
         @param    holes   Number of holes within the tablet
         @param    SZ      Threading direction of the tablet (S or Z)
         """
+
+        # ##############################################################################################################
+        # Initialize properties
+
+        # Max number of holes within card which can be handled with this class
+        self._max_holes = 6
+
+        # Properties for n-holed cards
+        # * incAngle: Regular angle a tablet is turned (e.g. a 4holed tablet is turned a quarter turn regulary)
+        # * incAngleMin: Minimum angle a tablet can be turned
+        self.__prop__ = {
+            3: {'incAngle': 120, 'incAngleMin': 30, 'startAngle': 270},
+            4: {'incAngle': 90, 'incAngleMin': 45, 'startAngle': 225},
+            5: {'incAngle': 72, 'incAngleMin': 18, 'startAngle': 270},
+            6: {'incAngle': 60, 'incAngleMin': 30, 'startAngle': 255}
+        }
+
+        # motion_sequence records all motions made with a card:
+        # "F", "B": regular Turns
+        # "f", "b": elemental Turns
+        # "TwL", "TwR": twist (rotate the Card along threading direction - Right <-> Left )
+        # "FlCw" "FlCcw": flip (flip the card along axis perpendicular to threading direction - Clockwise - Counter-Clockwise)
+        self.motion_sequence = []
+
+        # Twists on far side indicate whether the far side has twisted threads or not (in units of incAngleMin)
+        self.twists_on_farside = 0
+
+        # ##############################################################################################################
         # Validate number of holes
         if not isinstance(holes, int):
             raise TypeError("Number of holes can only be an integer")
@@ -70,17 +80,25 @@ class Card(object):
     @property
     def inc_angle(self):
         """Getter for incrementation angle when rotating an n-holed card regulary"""
-        return self._prop[self.holes]['incAngle']
+        return self.__prop__[self.holes]['incAngle']
 
     @property
     def inc_angle_min(self):
         """Getter for incrementation angle when rotating an n-holed card elementary"""
-        return self._prop[self.holes]['incAngleMin']
+        return self.__prop__[self.holes]['incAngleMin']
 
     @property
     def start_angle(self):
         """Getter for incrementation angle when rotating an n-holed card"""
-        return self._prop[self.holes]['startAngle']
+        return self.__prop__[self.holes]['startAngle']
+
+    @property
+    def current_angle(self):
+        """Returns the current angle of hole A"""
+        curr_angle = self.__prop__[self.holes]['startAngle']
+        for i in self.motion_sequence:
+            print i
+        return curr_angle
 
     def turn(self, direction="F"):
         """
@@ -93,10 +111,9 @@ class Card(object):
                              "(regular Backward) or <f> (elemental Forward) (default) or <b> (elemental Backward)")
 
         # Number of elementary turns caused by the current turn
-        x_1 = self.inc_angle
-        x_2 = self.inc_angle_min
         amount = self.inc_angle/self.inc_angle_min
 
+        # Build up the twist on the far side
         if direction is "F":
             self.twists_on_farside = self.twists_on_farside + amount
         elif direction is "f":
@@ -106,6 +123,7 @@ class Card(object):
         elif direction is "b":
             self.twists_on_farside = self.twists_on_farside - 1
 
+        # Store twist in motion sequence
         self.motion_sequence.append(direction)
 
 
