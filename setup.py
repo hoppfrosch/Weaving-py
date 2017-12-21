@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Learn more: https://github.com/kennethreitz/setup.py
 
 from setuptools import setup, find_packages
 
@@ -16,8 +17,7 @@ setup(
     long_description=readme,
     author='hoppfrosch',
     author_email='hoppfrosch@gmx.de',
-    url='https://github.com/kennethreitz/samplemod',
+    url='https://github.com/hoppfrosch/Weaving-py',
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
-

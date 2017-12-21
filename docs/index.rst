@@ -12,7 +12,12 @@ Contents:
    :maxdepth: 2
 
 
-
+.. automodule:: card
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    
 Indices and tables
 ==================
 

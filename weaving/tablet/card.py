@@ -97,7 +97,7 @@ class Card(object):
         """Returns the current angle of hole A"""
         curr_angle = self.__prop__[self.holes]['startAngle']
         for i in self.motion_sequence:
-            print i
+            print (i)
         return curr_angle
 
     def turn(self, direction="F"):
@@ -152,4 +152,4 @@ class Thread(object):
 
 if __name__ == '__main__':
     mycard = Card(holes=6)
-    print "Finished"
+    print ("Finished")
