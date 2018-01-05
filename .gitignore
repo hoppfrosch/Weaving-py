@@ -1,3 +1,5 @@
 *.pyc
 /_TEMP_
 docs/HTML/
+docs/
+Graphics/
